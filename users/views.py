@@ -5,17 +5,19 @@ from .serializers import RegisterSerializer, LoginSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
 
+
 # Generate JWT Token
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
     return {
-        'access': str(refresh.access_token),
+        "access": str(refresh.access_token),
     }
 
 
 # Register API
 class RegisterView(APIView):
-    permission_classes=[AllowAny]
+    permission_classes = [AllowAny]
+
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
 
@@ -23,20 +25,21 @@ class RegisterView(APIView):
             user = serializer.save()
             tokens = get_tokens_for_user(user)
 
-            return Response({
-                'user': {
-                    'username': user.username,
-                    'role': user.role
+            return Response(
+                {
+                    "user": {"username": user.username, "role": user.role},
+                    "token": tokens,
                 },
-                'token': tokens
-            }, status=status.HTTP_201_CREATED)
+                status=status.HTTP_201_CREATED,
+            )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Login API
 class LoginView(APIView):
-    permission_classes=[AllowAny]
+    permission_classes = [AllowAny]
+
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
 
@@ -44,12 +47,25 @@ class LoginView(APIView):
             user = serializer.validated_data
             tokens = get_tokens_for_user(user)
 
-            return Response({
-                'user': {
-                    'username': user.username,
-                    'role': user.role
-                },
-                'token': tokens
-            })
+            return Response(
+                {
+                    "user": {"username": user.username, "role": user.role},
+                    "token": tokens,
+                }
+            )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Test api
+from rest_framework.permissions import IsAuthenticated
+from .permissions import IsAdmin, IsCustomer, IsMerchant
+
+
+class TestProtectedView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({"message": "You are authenticated"})
+
+
