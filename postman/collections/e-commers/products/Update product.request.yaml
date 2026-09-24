@@ -1,0 +1,14 @@
+$kind: http-request
+url: 'http://127.0.0.1:8000/api/products/{{productId}}/'
+method: PATCH
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "price": "34.99",
+      "stock": 60
+    }
+order: 4000
